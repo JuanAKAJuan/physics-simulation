@@ -18,14 +18,19 @@ void Renderer::clear() {
 }
 
 void Renderer::renderParticles(const std::vector<Particle>& particles) {
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
 	for (const auto& particle : particles) {
-		// Convert particle position to screen coordinates (assuming world coords are centered)
 		int screenX = static_cast<int>(std::round(particle.getPosition().x));
 		int screenY = static_cast<int>(std::round(screenHeight - particle.getPosition().y));
 
-		SDL_RenderPoint(renderer, screenX, screenY);
+		SDL_SetRenderDrawColor(renderer, particle.getColor().r, particle.getColor().g, particle.getColor().b,
+							   particle.getColor().a);
+
+		SDL_FRect rect;
+		rect.x = screenX - static_cast<float>(particle.getSize()) / 2;
+		rect.y = screenY - static_cast<float>(particle.getSize()) / 2;
+		rect.w = particle.getSize();
+		rect.h = particle.getSize();
+		SDL_RenderFillRect(renderer, &rect);
 	}
 }
 

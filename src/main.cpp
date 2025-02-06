@@ -1,5 +1,6 @@
 #include "core/particle_system.h"
 #include "graphics/renderer.h"
+#include <cstdlib>
 
 int main() {
 	const int WINDOW_HEIGHT = 1440;
@@ -8,8 +9,16 @@ int main() {
 	ParticleSystem particleSystem;
 
 	for (int i = 0; i < 100; i++) {
-		particleSystem.addParticle(
-			Particle(glm::vec3(rand() % WINDOW_HEIGHT, rand() % WINDOW_WIDTH, 0.0f), glm::vec3(0.0f), 1.0f));
+		SDL_Color randomColor;
+		randomColor.r = rand() % 256;
+		randomColor.g = rand() % 256;
+		randomColor.b = rand() % 256;
+		randomColor.a = 255;
+
+		int randomSize = rand() % 10 + 5;
+
+		particleSystem.addParticle(Particle(glm::vec3(rand() % WINDOW_HEIGHT, rand() % WINDOW_WIDTH, 0.0f),
+											glm::vec3(0.0f), 1.0f, randomColor, randomSize));
 	}
 
 	bool running = true;
