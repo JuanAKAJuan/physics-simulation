@@ -1,37 +1,43 @@
 #include "renderer.h"
+#include <raylib.h>
 
 Renderer::Renderer(int width, int height) : screenWidth(width), screenHeight(height) {
-	SDL_Init(SDL_INIT_VIDEO);
-	window = SDL_CreateWindow("Physics Simulator", width, height, 0);
-	renderer = SDL_CreateRenderer(window, nullptr);
+	InitWindow(screenWidth, screenHeight, "Physics Simulation");
+	SetTargetFPS(60);
+
+	// Initialize 3D camera
+	camera.position = Vector3{10.0f, 10.0f, 10.0f};
+	camera.target = Vector3{0.0f, 0.0f, 0.0f};
+	camera.up = Vector3{0.0f, 1.0f, 0.0f};
+	camera.fovy = 45.0f;
+	camera.projection = CAMERA_PERSPECTIVE;
 }
 
-Renderer::~Renderer() {
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-}
+Renderer::~Renderer() { CloseWindow(); }
 
 void Renderer::clear() {
-	SDL_SetRenderDrawColor(renderer, 17, 17, 17, 255);
-	SDL_RenderClear(renderer);
+	BeginDrawing();
+	ClearBackground(DARKGRAY);
+	BeginMode3D(camera);
 }
 
 void Renderer::renderParticles(const std::vector<Particle>& particles) {
+	// Draw ground plane
+	DrawGrid(20, 1.0f);
+
 	for (const auto& particle : particles) {
-		int screenX = static_cast<int>(std::round(particle.getPosition().x));
-		int screenY = static_cast<int>(std::round(screenHeight - particle.getPosition().y));
+		Vector3 pos = particle.getPosition();
+		Color color = particle.getColor();
+		float size = static_cast<float>(particle.getSize() * 0.1f); // Scale down size for 3D
 
-		SDL_SetRenderDrawColor(renderer, particle.getColor().r, particle.getColor().g, particle.getColor().b,
-							   particle.getColor().a);
-
-		SDL_FRect rect;
-		rect.x = screenX - static_cast<float>(particle.getSize()) / 2;
-		rect.y = screenY - static_cast<float>(particle.getSize()) / 2;
-		rect.w = particle.getSize();
-		rect.h = particle.getSize();
-		SDL_RenderFillRect(renderer, &rect);
+		DrawSphere(pos, size, color);
 	}
 }
 
-void Renderer::present() { SDL_RenderPresent(renderer); }
+void Renderer::present() {
+	EndMode3D();
+	DrawFPS(10, 10);
+	EndDrawing();
+}
+
+void Renderer::updateCamera() { UpdateCamera(&camera, CAMERA_ORBITAL); }

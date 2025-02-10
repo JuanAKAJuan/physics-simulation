@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.20)
-project(PhysicsSimulator)
+cmake_minimum_required(VERSION 3.10)
+project(physics-simulation)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,17 +8,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
-# Find SDL3 - prefer system version, fallback to vendored
-find_package(SDL3 REQUIRED)
-find_package(glm CONFIG REQUIRED)
+find_package(raylib REQUIRED)
 
-if (NOT SDL3_FOUND)
-  message(STATUS "SDL3 not found system-wide, using vendored version.")
-  add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
-endif()
+# Source files
+set(SOURCES
+	src/main.cpp
+	src/core/particle.cpp
+	src/core/particle_system.cpp
+	src/graphics/renderer.cpp
+)
 
-# Create your game executable target
-add_executable(PhysicsSimulator src/main.cpp src/core/particle.cpp src/core/particle_system.cpp src/graphics/renderer.cpp)
+# Create executable
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Link to the SDL3 library.
-target_link_libraries(PhysicsSimulator PRIVATE SDL3::SDL3 glm::glm)
+# Link libraries
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	raylib
+)
+
+# Include directories
+target_include_directories(${PROJECT_NAME} PRIVATE
+	${CMAKE_SOURCE_DIR}/src
+)
